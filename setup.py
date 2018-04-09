@@ -124,7 +124,33 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['alembic', 'asn1crypto', 'asyncssh', 'beautifulsoup4', 'certifi'],  # Optional
+    install_requires=[
+        'alembic==0.9.9',
+        'asn1crypto==0.24.0',
+        'asyncssh==1.11.1',
+        'beautifulsoup4==4.6.0',
+        'bs4==0.0.1',
+        'certifi==2018.1.18',
+        'cffi==1.11.4',
+        'chardet==3.0.4',
+        'cryptography==2.1.4',
+        'idna==2.6',
+        'ktcal2==0.1.7',
+        'Mako==1.0.7',
+        'MarkupSafe==1.0',
+        'numpy==1.13.3',
+        'praw==5.4.0',
+        'prawcore==0.14.0',
+        'pycparser==2.18',
+        'PyMySQL==0.8.0',
+        'python-dateutil==2.7.2',
+        'python-editor==1.0.3',
+        'requests==2.18.4',
+        'six==1.11.0',
+        'SQLAlchemy==1.2.6',
+        'update-checker==0.16',
+        'urllib3==1.22',
+    ],  # Optional
 
     project_urls={  # Optional
         'Source': 'https://github.com/TheAnarchoX/TheAnarchoBot/',
