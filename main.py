@@ -11,6 +11,7 @@ from praw.exceptions import APIException
 import atexit
 import sqlalchemy
 import alembic
+
 at = atexit._clear()
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -37,12 +38,12 @@ def save_seen_posts():
         cPickle.dump(SEEN_POSTS, f)
 
 
-def process_submission(submission, reddit):
+def process_submission(submission):
     if submission.id in SEEN_POSTS or submission.stickied:
         return
     else:
         SEEN_POSTS.add(submission.id)
-        print("#" * 30)
+        print("#" * 200)
         print(f"Submission: {submission.name}")
         print(f"ID: {submission.id}")
         print(f"Author: {submission.author}")
@@ -51,8 +52,12 @@ def process_submission(submission, reddit):
             print(f"Content: {submission.selftext}")
         else:
             print(f"URL: {submission.url}")
-        for x in range(1, 100):
-            submission.reply(f"Useful comment {x}")
+        print("Comments:")
+        for comment in submission.comments():
+            print(f"Comment: {comment.name}")
+            print(f"ID: {comment.id}")
+            print(f"Author: {comment.author}")
+            print(f"Body: {comment.body}")
 
 
 def praw_connect():
@@ -72,9 +77,9 @@ def praw_connect():
 def run():
     reddit = praw_connect()
     subreddit = reddit.subreddit(config['Reddit']['REDDIT_GRAB_SUBREDDIT'])
-    for submission in subreddit.hot(limit=int(config['Reddit']['REDDIT_REQUEST_LIMIT'])):
+    for submission in subreddit.stream.submissions():
         try:
-            process_submission(submission, reddit)
+            process_submission(submission)
         except APIException as ex:
             print(ex)
             t.sleep(60)
