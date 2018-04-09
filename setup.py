@@ -1,5 +1,7 @@
 from setuptools import setup
+from os import system
 
+system('pip install -r requirements.txt')
 setup(
     name='TheAnarchoBot',
     version='0.1',
