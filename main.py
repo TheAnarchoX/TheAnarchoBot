@@ -4,13 +4,15 @@ __author__ = "TheAnarchoX"
 # DO ALL THE IMPORTS
 import _pickle as cPickle
 import os
-import time
-from configparser import ConfigParser
+import time as t
+import configparser
 import praw
 from praw.exceptions import APIException
-# import atexit
-
-config = ConfigParser()
+import atexit
+import sqlalchemy
+import alembic
+at = atexit._clear()
+config = configparser.ConfigParser()
 config.read('config.ini')
 
 SEEN_POSTS = set()
@@ -75,7 +77,7 @@ def run():
             process_submission(submission, reddit)
         except APIException as ex:
             print(ex)
-            time.sleep(60)
+            t.sleep(60)
             continue
 
 
