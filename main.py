@@ -9,6 +9,7 @@ import configparser
 import praw
 from praw.exceptions import APIException
 import atexit
+import platform
 import sqlalchemy
 import alembic
 
@@ -65,6 +66,7 @@ def praw_connect():
     reddit_user_agent = reddit_config['REDDIT_USER_AGENT']
     reddit_client_id = reddit_config['REDDIT_CLIENT_ID']
 
+    print("Connecting to Reddit....")
     reddit = praw.Reddit("TheAnarchoBot")
     if reddit:
         print(f"{config['Bot']['BOT_NAME']} (Version: {config['Bot']['BOT_VERSION']}) connected to Reddit \n"
@@ -73,10 +75,25 @@ def praw_connect():
         print("Mode = Read-Only") if reddit.read_only else print("Mode = Read/Write")
         return reddit
 
+def show_info():
+    pmachine = platform.machine()
+    pversion = platform.version()
+    pplatform = platform.platform()
+    psys = platform.system()
+    pproc = platform.processor()
+    ppy = platform.python_version()
+    print(f"Machine: {pmachine}")
+    print(f"Version: {pversion}")
+    print(f"Platform: {pplatform}")
+    print(f"System: {psys}")
+    print(f"Processor: {pproc}")
+    print(f"Python Version: {ppy}")
 
 def run():
+    show_info()
     reddit = praw_connect()
     subreddit = reddit.subreddit(config['Reddit']['REDDIT_GRAB_SUBREDDIT'])
+    print(f"Subreddit to process: {subreddit}")
     for submission in subreddit.stream.submissions():
         try:
             process_submission(submission)
