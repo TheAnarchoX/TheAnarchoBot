@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import urllib3
+
 __author__ = "TheAnarchoX"
 
 # DO ALL THE IMPORTS
@@ -12,6 +14,7 @@ from praw.exceptions import APIException
 import atexit
 import platform
 import datetime
+import alembic
 
 
 class BgColors:
@@ -41,6 +44,16 @@ if os.path.exists(config['Bot']['BOT_PICKLE_FILE_COMMENTS']):
     with open(config['Bot']['BOT_PICKLE_FILE_COMMENTS'], "rb") as data_file:
         SEEN_COMMENTS = load(data_file)
 
+def check_connection():
+    try:
+        http = urllib3.PoolManager()
+        r = http.request('get', 'http://216.58.192.142')
+        if(r.status == 200):
+            return True
+        else:
+            raise urllib3.exceptions.HTTPError
+    except urllib3.exceptions.HTTPError as err:
+        return False
 
 @atexit.register
 def save_seen_submissions():
@@ -79,7 +92,7 @@ def store_submission(submission):
 
 def process_submission(submission):
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
-    print(f"{BgColors.FAIL}Submission:{BgColors.ENDC}")
+    print(f"{BgColors.MESSAGE}Submission:{BgColors.ENDC}")
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
     if submission.id in SEEN_SUBMISSIONS or submission.stickied:
         if submission.id in SEEN_SUBMISSIONS:
@@ -94,7 +107,7 @@ def process_submission(submission):
         print(f"{BgColors.OKGREEN}Submission Name: {BgColors.ENDC}{BgColors.MESSAGE} {submission.name}")
         print(f"{BgColors.OKGREEN}Submission ID: {BgColors.ENDC}{BgColors.MESSAGE} {submission.id}{BgColors.ENDC}")
         print(
-            f"{BgColors.OKGREEN}Submission Subreddit: {BgColors.ENDC}{BgColors.MESSAGE} {submission.subreddit}{BgColors.ENDC}")
+            f"{BgColors.OKGREEN}Submission Subreddit: {BgColors.ENDC}{BgColors.MESSAGE} {submission.subreddit} (https://reddit.com/r/{submission.subreddit}) {BgColors.ENDC}")
         print(
             f"{BgColors.OKGREEN}Submission Title: {BgColors.ENDC}{BgColors.MESSAGE} {submission.title}{BgColors.ENDC}")
         print(
@@ -106,7 +119,7 @@ def process_submission(submission):
         print(
             f"{BgColors.OKGREEN}Submission Downvotes: {BgColors.ENDC}{BgColors.MESSAGE} {submission.downs}{BgColors.ENDC}")
         print(
-            f"{BgColors.OKGREEN}Submission Author: {BgColors.ENDC}{BgColors.MESSAGE} {submission.author}{BgColors.ENDC}")
+            f"{BgColors.OKGREEN}Submission Author: {BgColors.ENDC}{BgColors.MESSAGE} {submission.author}  (https://reddit.com/user/{submission.author}){BgColors.ENDC}")
         if submission.is_self:
             print(
                 f"{BgColors.OKGREEN}Submission Content: \n{BgColors.ENDC}{BgColors.MESSAGE} {submission.selftext}{BgColors.ENDC}")
@@ -117,12 +130,13 @@ def process_submission(submission):
 
 
 def store_comment(comment):
+
     return
 
 
 def process_comment(comment):
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
-    print(f"{BgColors.FAIL}Comment:{BgColors.ENDC}")
+    print(f"{BgColors.MESSAGE}Comment:{BgColors.ENDC}")
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
     if comment.id in SEEN_COMMENTS or comment.stickied:
         if comment.id in SEEN_COMMENTS:
@@ -137,7 +151,7 @@ def process_comment(comment):
         print(f"{BgColors.OKGREEN}Comment Name: {BgColors.ENDC}{BgColors.MESSAGE}{comment.name}{BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment ID: {BgColors.ENDC}{BgColors.MESSAGE}{comment.id}{BgColors.ENDC}")
         print(
-            f"{BgColors.OKGREEN}Comment Subreddit:{BgColors.ENDC}{BgColors.MESSAGE} {comment.subreddit}{BgColors.ENDC}")
+            f"{BgColors.OKGREEN}Comment Subreddit:{BgColors.ENDC}{BgColors.MESSAGE} {comment.subreddit} (https://reddit.com/r/{comment.subreddit}){BgColors.ENDC}")
         print(
             f"{BgColors.OKGREEN}Comment Created At: {BgColors.ENDC}{BgColors.MESSAGE}{datetime.datetime.fromtimestamp(int(comment.created_utc)).strftime('%Y-%m-%d %H:%M:%S')}{BgColors.ENDC}")
         print(
@@ -147,10 +161,10 @@ def process_comment(comment):
         print(f"{BgColors.OKGREEN}Comment Score:{BgColors.ENDC}{BgColors.MESSAGE} {comment.score}{BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment Upvotes:{BgColors.ENDC}{BgColors.MESSAGE} {comment.ups}{BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment Downvotes:{BgColors.ENDC}{BgColors.MESSAGE} {comment.downs}{BgColors.ENDC}")
-        print(f"{BgColors.OKGREEN}Comment Author:{BgColors.ENDC}{BgColors.MESSAGE} {comment.author}{BgColors.ENDC}")
+        print(f"{BgColors.OKGREEN}Comment Author:{BgColors.ENDC}{BgColors.MESSAGE} {comment.author}  (https://reddit.com/user/{comment.author}) {BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment Body: \n{BgColors.ENDC}{BgColors.MESSAGE} {comment.body}{BgColors.ENDC}")
         print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
-        print(f"{BgColors.FAIL}Parent Comment:{BgColors.ENDC}")
+        print(f"{BgColors.MESSAGE}Parent Comment:{BgColors.ENDC}")
         print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
         if not comment.is_root:
             print(
@@ -168,7 +182,7 @@ def process_comment(comment):
             print(
                 f"{BgColors.OKGREEN}Parent Comment Downvotes: {BgColors.ENDC}{BgColors.MESSAGE} {comment.parent().downs}{BgColors.ENDC}")
             print(
-                f"{BgColors.OKGREEN}Parent Comment Author:{BgColors.ENDC}{BgColors.MESSAGE} {comment.parent().author}{BgColors.ENDC}")
+                f"{BgColors.OKGREEN}Parent Comment Author:{BgColors.ENDC}{BgColors.MESSAGE} {comment.parent().author} (https://reddit.com/user/{comment.parent().author}) {BgColors.ENDC}")
             print(
                 f"{BgColors.OKGREEN}Parent Comment Body: \n{BgColors.ENDC}{BgColors.MESSAGE} {comment.parent().body}{BgColors.ENDC}")
         else:
@@ -183,7 +197,13 @@ def praw_connect():
     reddit_client_id = reddit_config['REDDIT_CLIENT_ID']
     bot_env = config['Bot']['BOT_ENV']
 
+    print(f"{BgColors.MESSAGE}Checking for active internet connection {BgColors.ENDC}")
+    if check_connection():
+        print(f"{BgColors.OKGREEN}Internet connection active {BgColors.ENDC}")
+    else:
+        sys.exit(f"{BgColors.FAIL}No active internet connection found, exiting now....{BgColors.MESSAGE}")
     print(f"{BgColors.MESSAGE}Connecting to Reddit.... {BgColors.ENDC}")
+
     print(f"{BgColors.FAIL}~{BgColors.ENDC}" * 165)
     reddit = praw.Reddit("TheAnarchoBot")
     if reddit:
@@ -191,6 +211,7 @@ def praw_connect():
               f"{BgColors.MESSAGE}(Version: {BgColors.ENDC}"
               f"{BgColors.FAIL}{config['Bot']['BOT_VERSION']}{BgColors.ENDC}"
               f"{BgColors.MESSAGE}){BgColors.ENDC}{BgColors.OKGREEN} connected to Reddit {BgColors.ENDC}\n"
+              f"{BgColors.MESSAGE}Source Code: https://github.com/TheAnarchoX/TheAnarchoBot {BgColors.ENDC}\n"
               f"{BgColors.OKBLUE}USER_AGENT: {BgColors.ENDC}{BgColors.OKGREEN}{reddit_user_agent}{BgColors.ENDC}\n"
               f"{BgColors.OKBLUE}ENV: {BgColors.ENDC}{BgColors.OKGREEN}{bot_env}{BgColors.ENDC}\n"
               f"{BgColors.OKBLUE}CLIENT_ID: {BgColors.ENDC} {BgColors.OKGREEN} {reddit_client_id} {BgColors.ENDC}")
