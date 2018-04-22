@@ -19,19 +19,22 @@ depends_on = None
 def upgrade():
     op.create_foreign_key(
         "fk_comment_submission", "comments",
-        "submissions", ["submission_id"], ["id"])
+        "submissions", ["submission_id"], ["id"], ondelete="CASCADE")
     op.create_foreign_key(
         "fk_comment_author", "comments",
-        "redditors", ["author_id"], ["id"])
+        "redditors", ["author_id"], ["id"], ondelete="CASCADE")
     op.create_foreign_key(
         "fk_comment_parent", "comments",
-        "comments", ["parent_id"], ["id"])
+        "comments", ["parent_id"], ["id"], ondelete="CASCADE")
     op.create_foreign_key(
         "fk_submission_author", "submissions",
-        "redditors", ["author_id"], ["id"])
+        "redditors", ["author_id"], ["id"], ondelete="CASCADE")
     op.create_foreign_key(
         "fk_submission_subreddit", "submissions",
-        "subreddit", ["subreddit_id"], ["id"])
+        "subreddits", ["subreddit_id"], ["id"], ondelete="CASCADE")
+    op.create_foreign_key(
+        "fk_bot_reply_parent", "bot_replies",
+        "comments", ["parent_id"], ["id"], ondelete="CASCADE")
 
 def downgrade():
     pass

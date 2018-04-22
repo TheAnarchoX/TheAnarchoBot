@@ -14,7 +14,6 @@ from praw.exceptions import APIException
 import atexit
 import platform
 import datetime
-import alembic
 
 
 class BgColors:
