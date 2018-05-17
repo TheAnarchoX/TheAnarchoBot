@@ -35,6 +35,15 @@ def upgrade():
     op.create_foreign_key(
         "fk_bot_reply_parent", "bot_replies",
         "comments", ["parent_id"], ["id"], ondelete="CASCADE")
+    op.create_foreign_key(
+        "fk_bot_reply_submission", "bot_replies",
+        "submissions", ["submission_id"], ["id"], ondelete="CASCADE")
 
 def downgrade():
-    pass
+    op.drop_constraint('fk_comment_submission', 'comments', type_='foreignkey')
+    op.drop_constraint('fk_comment_author', 'comments', type_='foreignkey')
+    op.drop_constraint('fk_comment_parent', 'comments', type_='foreignkey')
+    op.drop_constraint('fk_submission_author', 'submissions', type_='foreignkey')
+    op.drop_constraint('fk_submission_subreddit', 'submissions', type_='foreignkey')
+    op.drop_constraint('fk_bot_reply_parent', 'bot_replies', type_='foreignkey')
+    op.drop_constraint('fk_bot_reply_submission', 'bot_replies', type_='foreignkey')

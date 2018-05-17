@@ -14,7 +14,7 @@ from praw.exceptions import APIException
 import atexit
 import platform
 import datetime
-
+import json
 
 class BgColors:
     HEADER = '\033[95m'
@@ -56,33 +56,32 @@ def check_connection():
 
 @atexit.register
 def save_seen_submissions():
-    if config['Test']['DELETE_PICKLE_FILE_SUBMISSIONS'] and os.path.exists(
-            config['Bot']['BOT_PICKLE_FILE_SUBMISSIONS']):
-        try:
-            try:
-                os.remove(config['Test']['DELETE_PICKLE_FILE_SUBMISSIONS'])
-            except OSError:
-                pass
-        except Exception as ex:
-            print(ex)
-            exit(1)
     with open(config['Bot']['BOT_PICKLE_FILE_SUBMISSIONS'], "wb") as f:
         dump(SEEN_SUBMISSIONS, f)
 
-
 @atexit.register
 def save_seen_comments():
-    if config['Test']['DELETE_PICKLE_FILE_COMMENTS'] and os.path.exists(config['Bot']['BOT_PICKLE_FILE_COMMENTS']):
-        try:
-            try:
-                os.remove(config['Test']['DELETE_PICKLE_FILE_COMMENTS'])
-            except OSError:
-                pass
-        except Exception as ex:
-            print(ex)
-            exit(1)
     with open(config['Bot']['BOT_PICKLE_FILE_COMMENTS'], "wb") as f:
         dump(SEEN_COMMENTS, f)
+
+
+def log_comment(comment):
+  if(config['Log']['LOG_CHANNEL'] == "File"):
+      loc = config['File']['FILE_LOCATION'] + f"LOG_COMMENTS_{t.strftime('%Y_%m_%d')}.txt"
+      entry = f"[{t.strftime('%H:%M:%S')}] Comment: {comment.id} by {comment.author} : {comment.body} posted to submission: {comment.submission.title}\n"
+      e = bytearray()
+      e.extend(entry.encode())
+      with open(loc, "a+b") as f:
+          f.write(e)
+
+def log_submission(submission):
+    if(config['Log']['LOG_CHANNEL'] == "File"):
+        loc = config['File']['FILE_LOCATION'] + f"LOG_SUBMISSIONS_{t.strftime('%Y_%m_%d')}.txt"
+        entry = f"[{t.strftime('%H:%M:%S')}] Submission: {submission.id} by {submission.author} : {submission.title}\n"
+        e = bytearray()
+        e.extend(entry.encode())
+        with open(loc, "a+b") as f:
+            f.write(e)
 
 
 def store_submission(submission):
@@ -102,6 +101,7 @@ def process_submission(submission):
         return
     else:
         SEEN_SUBMISSIONS.add(submission.id)
+        log_submission(submission)
         print(f"{BgColors.OKGREEN}Submission Permalink: {BgColors.ENDC}{BgColors.MESSAGE} https://reddit.com{submission.permalink}")
         print(f"{BgColors.OKGREEN}Submission Name: {BgColors.ENDC}{BgColors.MESSAGE} {submission.name}")
         print(f"{BgColors.OKGREEN}Submission ID: {BgColors.ENDC}{BgColors.MESSAGE} {submission.id}{BgColors.ENDC}")
@@ -133,9 +133,10 @@ def store_comment(comment):
     return
 
 
-def process_comment(comment):
+def process_comment(comment, count):
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
     print(f"{BgColors.MESSAGE}Comment:{BgColors.ENDC}")
+    print(f"{BgColors.MESSAGE}Total Comments Processed: {count} {BgColors.ENDC}")
     print(f"{BgColors.FAIL}#{BgColors.ENDC}" * 165)
     if comment.id in SEEN_COMMENTS or comment.stickied:
         if comment.id in SEEN_COMMENTS:
@@ -146,6 +147,7 @@ def process_comment(comment):
         return
     else:
         SEEN_COMMENTS.add(comment.id)
+        log_comment(comment)
         print(f"{BgColors.OKGREEN}Comment Permalink: {BgColors.ENDC}{BgColors.MESSAGE}https://reddit.com{comment.permalink}{BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment Name: {BgColors.ENDC}{BgColors.MESSAGE}{comment.name}{BgColors.ENDC}")
         print(f"{BgColors.OKGREEN}Comment ID: {BgColors.ENDC}{BgColors.MESSAGE}{comment.id}{BgColors.ENDC}")
@@ -240,11 +242,13 @@ def run():
     show_info()
     reddit = praw_connect()
     subreddit = reddit.subreddit(config['Reddit']['REDDIT_GRAB_SUBREDDIT'])
+    count = 0
     print(f"{BgColors.FAIL}~{BgColors.ENDC}" * 165)
     print(f"{BgColors.OKBLUE}Subreddit to process: {BgColors.ENDC}{BgColors.OKGREEN} {subreddit}{BgColors.ENDC}")
     for comment in subreddit.stream.comments():
         try:
-            process_comment(comment)
+            count = count + 1
+            process_comment(comment, count)
         except APIException as ex:
             print(ex)
             t.sleep(60)
