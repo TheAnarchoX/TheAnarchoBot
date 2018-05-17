@@ -14,6 +14,7 @@ from praw.exceptions import APIException
 import atexit
 import platform
 import datetime
+import sqlalchemy
 import json
 
 class BgColors:
