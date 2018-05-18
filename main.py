@@ -14,8 +14,10 @@ from praw.exceptions import APIException
 import atexit
 import platform
 import datetime
+from data.engine import  DB
 import sqlalchemy
 import json
+
 
 class BgColors:
     HEADER = '\033[95m'
@@ -43,6 +45,7 @@ if os.path.exists(config['Bot']['BOT_PICKLE_FILE_SUBMISSIONS']):
 if os.path.exists(config['Bot']['BOT_PICKLE_FILE_COMMENTS']):
     with open(config['Bot']['BOT_PICKLE_FILE_COMMENTS'], "rb") as data_file:
         SEEN_COMMENTS = load(data_file)
+
 
 def check_connection():
     try:
@@ -86,6 +89,8 @@ def log_submission(submission):
 
 
 def store_submission(submission):
+    db =  DB()
+    print(db)
     return
 
 
