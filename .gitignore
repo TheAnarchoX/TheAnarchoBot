@@ -156,3 +156,6 @@ fabric.properties
 
 # cPickle 
 *.pkl
+
+#Logs
+logs/

@@ -15,6 +15,7 @@ import atexit
 import platform
 import datetime
 from data.engine import  DB
+from data.schemas import *
 import sqlalchemy
 import json
 
@@ -90,7 +91,9 @@ def log_submission(submission):
 
 def store_submission(submission):
     db =  DB()
-    print(db)
+    db.connection.begin()
+    ed_sub = Submission(submission)
+
     return
 
 

@@ -60,6 +60,9 @@ class Submission(Base):
     subreddit = relationship("Subreddit",  back_populates="submissions", cascade="all, delete, delete-orphan")
     author = relationship("Redditor",  back_populates="submissions", cascade="all, delete, delete-orphan")
 
+    def __repr__(self):
+       return "<Submission(id='%s',name='%s', subreddit_id='%s',author_id='%s;)>" % (
+            self.name, self.name, self.subreddit_id, self.author_id)
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -80,7 +83,8 @@ class Comment(Base):
 
 
 class BotReplies(Base):
-    id = Column(String)
+    __tablename__ = "BotReplies"
+    id = Column(String, primary_key=True)
     name = Column(String)
     submission_id = Column(String, ForeignKey("submission_id"))
     parent_id = Column(String, ForeignKey("parent_id"), nullable=True)
