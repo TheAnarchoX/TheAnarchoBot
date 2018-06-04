@@ -92,7 +92,6 @@ def log_submission(submission):
 def store_submission(submission):
     db =  DB()
     db.connection.begin()
-    ed_sub = Submission(submission)
 
     return
 
