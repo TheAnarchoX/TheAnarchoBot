@@ -130,7 +130,7 @@ setup(
         'six==1.11.0',
         'SQLAlchemy==1.2.6',
         'update-checker==0.16',
-        'urllib3==1.22',
+        'urllib3==1.24.2',
     ],  # Optional
 
     project_urls={  # Optional

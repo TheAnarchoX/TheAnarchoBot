@@ -22,4 +22,4 @@ requests==2.20.0
 six==1.11.0
 SQLAlchemy==1.2.6
 update-checker==0.16
-urllib3==1.22
+urllib3==1.24.2
