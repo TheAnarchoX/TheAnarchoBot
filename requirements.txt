@@ -18,7 +18,7 @@ pycparser==2.18
 PyMySQL==0.8.0
 python-dateutil==2.7.2
 python-editor==1.0.3
-requests==2.18.4
+requests==2.20.0
 six==1.11.0
 SQLAlchemy==1.2.6
 update-checker==0.16
